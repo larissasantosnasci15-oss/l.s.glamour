@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #fef6fa;
+  --color-surface: #ffffff;
+  --color-ink: #221e1f;
+  --color-muted: #7a6f6a;
+  --color-primary: #221e1f;
+  --color-primary-dark: #000000;
+  --color-primary-light: #fbd7e6;
+  --color-gold: #c9a25d;
+  --color-line: #f4dce8;
+  --color-blush: #fbd7e6;
+
+  --font-display: "Bodoni Moda", serif;
+  --font-body: "Manrope", sans-serif;
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.container-wrap {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .container-wrap {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  transition: background-color 150ms ease;
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
