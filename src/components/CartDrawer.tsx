@@ -2,16 +2,28 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useCart } from "@/context/CartContext";
 import { cartWhatsAppLink, formatPrice } from "@/lib/whatsapp";
 import type { Settings } from "@/lib/types";
 
 export default function CartDrawer({ settings }: { settings: Settings }) {
   const { items, isOpen, close, removeItem, updateQuantity, subtotal, clear } = useCart();
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  // O header é "sticky" com desfoque de fundo (backdrop-blur), e isso cria um novo
+  // "containing block" para elementos com position: fixed dentro dele — por isso a
+  // sacola ficava presa/cortada dentro da altura do cabeçalho e não abria por
+  // completo. Renderizando a sacola num portal direto no <body>, ela passa a se
+  // posicionar em relação à janela inteira, como esperado.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  return (
+  if (!isOpen || !mounted) return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-50">
       <button
         aria-label="Fechar carrinho"
@@ -102,6 +114,7 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
