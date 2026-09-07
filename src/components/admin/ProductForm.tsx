@@ -191,14 +191,17 @@ export default function ProductForm({ product }: { product?: Product }) {
 
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className="text-xs text-ink/60 block mb-1">Preço (R$) *</label>
+          <label className="text-xs text-ink/60 block mb-1">Preço (R$)</label>
           <input
-            required
             inputMode="decimal"
+            placeholder="Deixe em branco se ainda não tiver o preço"
             value={form.price}
             onChange={(e) => update("price", e.target.value)}
             className="w-full border border-line rounded-lg px-3 py-2 text-sm"
           />
+          <p className="text-[11px] text-ink/40 mt-1">
+            Sem preço, o produto aparece na loja sem valor, com um botão para o cliente consultar pelo WhatsApp.
+          </p>
         </div>
         <div>
           <label className="text-xs text-ink/60 block mb-1">Preço promocional</label>

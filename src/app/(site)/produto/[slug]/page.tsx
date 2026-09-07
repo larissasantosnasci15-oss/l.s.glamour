@@ -28,6 +28,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
   if (!product) notFound();
 
   const finalPrice = product.promo_price ?? product.price;
+  const hasPrice = finalPrice > 0;
   const outOfStock = product.stock <= 0;
   const gallery = product.images?.length ? product.images : product.image_url ? [product.image_url] : [];
 
@@ -78,16 +79,18 @@ export default async function ProductPage({ params }: { params: { slug: string }
             {product.is_launch && <span className="bg-ink text-white text-[11px] px-2 py-1 rounded-full">Lançamento</span>}
           </div>
 
-          <div className="flex items-baseline gap-3 mb-6">
-            {product.promo_price ? (
-              <>
-                <span className="text-2xl font-semibold text-primary-dark">{formatPrice(product.promo_price)}</span>
-                <span className="text-base text-ink/40 line-through">{formatPrice(product.price)}</span>
-              </>
-            ) : (
-              <span className="text-2xl font-semibold">{formatPrice(product.price)}</span>
-            )}
-          </div>
+          {hasPrice && (
+            <div className="flex items-baseline gap-3 mb-6">
+              {product.promo_price ? (
+                <>
+                  <span className="text-2xl font-semibold text-primary-dark">{formatPrice(product.promo_price)}</span>
+                  <span className="text-base text-ink/40 line-through">{formatPrice(product.price)}</span>
+                </>
+              ) : (
+                <span className="text-2xl font-semibold">{formatPrice(product.price)}</span>
+              )}
+            </div>
+          )}
 
           <p className="text-sm text-ink/70 leading-relaxed mb-6 whitespace-pre-line">{product.description}</p>
 
@@ -106,12 +109,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
               rel="noopener noreferrer"
               className="btn-primary flex-1 text-center rounded-full py-3.5 text-sm font-medium"
             >
-              Comprar pelo WhatsApp
+              {hasPrice ? "Comprar pelo WhatsApp" : "Consultar pelo WhatsApp"}
             </a>
-            <AddToCartButton
-              product={{ id: product.id, name: product.name, slug: product.slug, price: finalPrice, image_url: product.image_url }}
-              disabled={outOfStock}
-            />
+            {hasPrice && (
+              <AddToCartButton
+                product={{ id: product.id, name: product.name, slug: product.slug, price: finalPrice, image_url: product.image_url }}
+                disabled={outOfStock}
+              />
+            )}
           </div>
 
           <ShareButton title={product.name} />

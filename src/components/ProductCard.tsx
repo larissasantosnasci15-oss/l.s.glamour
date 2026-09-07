@@ -15,6 +15,7 @@ export default function ProductCard({
 }) {
   const { addItem } = useCart();
   const finalPrice = product.promo_price ?? product.price;
+  const hasPrice = finalPrice > 0;
   const outOfStock = product.stock <= 0;
 
   return (
@@ -55,16 +56,18 @@ export default function ProductCard({
         <Link href={`/produto/${product.slug}`} className="text-sm font-medium leading-snug line-clamp-2 hover:text-primary">
           {product.name}
         </Link>
-        <div className="flex items-baseline gap-2">
-          {product.promo_price ? (
-            <>
-              <span className="text-sm font-semibold text-primary-dark">{formatPrice(product.promo_price)}</span>
-              <span className="text-xs text-ink/40 line-through">{formatPrice(product.price)}</span>
-            </>
-          ) : (
-            <span className="text-sm font-semibold text-ink">{formatPrice(product.price)}</span>
-          )}
-        </div>
+        {hasPrice && (
+          <div className="flex items-baseline gap-2">
+            {product.promo_price ? (
+              <>
+                <span className="text-sm font-semibold text-primary-dark">{formatPrice(product.promo_price)}</span>
+                <span className="text-xs text-ink/40 line-through">{formatPrice(product.price)}</span>
+              </>
+            ) : (
+              <span className="text-sm font-semibold text-ink">{formatPrice(product.price)}</span>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-2 mt-2">
           <a
@@ -73,24 +76,26 @@ export default function ProductCard({
             rel="noopener noreferrer"
             className="flex-1 text-center text-xs border border-primary text-primary-dark rounded-full py-2 hover:bg-primary hover:text-white transition-colors"
           >
-            Comprar no WhatsApp
+            {hasPrice ? "Comprar no WhatsApp" : "Consultar no WhatsApp"}
           </a>
-          <button
-            disabled={outOfStock}
-            onClick={() =>
-              addItem({
-                id: product.id,
-                name: product.name,
-                slug: product.slug,
-                price: finalPrice,
-                image_url: product.image_url,
-              })
-            }
-            className="text-xs border border-line rounded-full px-3 py-2 hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed"
-            aria-label="Adicionar à sacola"
-          >
-            +Sacola
-          </button>
+          {hasPrice && (
+            <button
+              disabled={outOfStock}
+              onClick={() =>
+                addItem({
+                  id: product.id,
+                  name: product.name,
+                  slug: product.slug,
+                  price: finalPrice,
+                  image_url: product.image_url,
+                })
+              }
+              className="text-xs border border-line rounded-full px-3 py-2 hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Adicionar à sacola"
+            >
+              +Sacola
+            </button>
+          )}
         </div>
       </div>
     </div>

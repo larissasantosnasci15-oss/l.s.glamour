@@ -37,9 +37,11 @@ export function interestWhatsAppLink(whatsappNumber: string): string {
 
 export function productWhatsAppLink(whatsappNumber: string, product: Pick<Product, "name" | "price" | "promo_price">): string {
   const finalPrice = product.promo_price ?? product.price;
-  const message = `Olá! Tenho interesse no produto ${product.name}, no valor de ${formatPrice(
-    finalPrice
-  )}. Gostaria de saber mais informações.`;
+  const message = finalPrice
+    ? `Olá! Tenho interesse no produto ${product.name}, no valor de ${formatPrice(
+        finalPrice
+      )}. Gostaria de saber mais informações.`
+    : `Olá! Tenho interesse no produto ${product.name}. Gostaria de saber o preço e mais informações.`;
   return buildLink(whatsappNumber, message);
 }
 
