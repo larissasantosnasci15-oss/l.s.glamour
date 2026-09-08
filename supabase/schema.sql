@@ -74,9 +74,14 @@ create table if not exists public.coupons (
   id uuid primary key default gen_random_uuid(),
   code text not null unique,
   discount_percent numeric(5, 2) not null check (discount_percent > 0 and discount_percent <= 100),
+  min_order_value numeric(10, 2) not null default 0 check (min_order_value >= 0),
   active boolean not null default true,
   created_at timestamptz not null default now()
 );
+
+-- Compatibilidade: se a tabela já existia sem essa coluna (criada antes
+-- desta atualização), adiciona sem apagar nada.
+alter table public.coupons add column if not exists min_order_value numeric(10, 2) not null default 0;
 
 -- -------------------------------------------------------------------------
 -- CONFIGURAÇÕES DA LOJA (linha única, id fixo = 1)

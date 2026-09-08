@@ -18,6 +18,8 @@ type CartContextValue = {
   // Cupom de desconto
   couponCode: string | null;
   couponDiscountPercent: number | null;
+  couponMinOrderValue: number | null;
+  couponMeetsMin: boolean;
   couponLoading: boolean;
   couponError: string | null;
   applyCoupon: (code: string) => Promise<void>;
@@ -37,6 +39,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const [couponCode, setCouponCode] = useState<string | null>(null);
   const [couponDiscountPercent, setCouponDiscountPercent] = useState<number | null>(null);
+  const [couponMinOrderValue, setCouponMinOrderValue] = useState<number | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
 
@@ -54,6 +57,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (parsed?.code && typeof parsed.discount_percent === "number") {
           setCouponCode(parsed.code);
           setCouponDiscountPercent(parsed.discount_percent);
+          setCouponMinOrderValue(typeof parsed.min_order_value === "number" ? parsed.min_order_value : 0);
         }
       }
     } catch {
@@ -77,7 +81,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (couponCode && couponDiscountPercent != null) {
         window.localStorage.setItem(
           COUPON_STORAGE_KEY,
-          JSON.stringify({ code: couponCode, discount_percent: couponDiscountPercent })
+          JSON.stringify({
+            code: couponCode,
+            discount_percent: couponDiscountPercent,
+            min_order_value: couponMinOrderValue ?? 0,
+          })
         );
       } else {
         window.localStorage.removeItem(COUPON_STORAGE_KEY);
@@ -85,7 +93,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignora falha de escrita
     }
-  }, [couponCode, couponDiscountPercent, hydrated]);
+  }, [couponCode, couponDiscountPercent, couponMinOrderValue, hydrated]);
 
   function addItem(item: Omit<CartItem, "quantity">, quantity = 1) {
     setItems((prev) => {
@@ -124,7 +132,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("coupons")
-        .select("code, discount_percent, active")
+        .select("code, discount_percent, min_order_value, active")
         .eq("code", code)
         .eq("active", true)
         .maybeSingle();
@@ -133,11 +141,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCouponError("Cupom inválido ou expirado.");
         setCouponCode(null);
         setCouponDiscountPercent(null);
+        setCouponMinOrderValue(null);
         return;
       }
 
       setCouponCode(data.code);
       setCouponDiscountPercent(data.discount_percent);
+      setCouponMinOrderValue(data.min_order_value ?? 0);
     } catch {
       setCouponError("Não foi possível validar o cupom agora. Tente novamente.");
     } finally {
@@ -148,14 +158,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   function removeCoupon() {
     setCouponCode(null);
     setCouponDiscountPercent(null);
+    setCouponMinOrderValue(null);
     setCouponError(null);
   }
 
   const subtotal = useMemo(() => items.reduce((sum, i) => sum + i.price * i.quantity, 0), [items]);
   const count = useMemo(() => items.reduce((sum, i) => sum + i.quantity, 0), [items]);
+  const couponMeetsMin = useMemo(
+    () => subtotal >= (couponMinOrderValue ?? 0),
+    [subtotal, couponMinOrderValue]
+  );
   const discount = useMemo(
-    () => (couponDiscountPercent ? (subtotal * couponDiscountPercent) / 100 : 0),
-    [subtotal, couponDiscountPercent]
+    () => (couponDiscountPercent && couponMeetsMin ? (subtotal * couponDiscountPercent) / 100 : 0),
+    [subtotal, couponDiscountPercent, couponMeetsMin]
   );
   const total = useMemo(() => Math.max(0, subtotal - discount), [subtotal, discount]);
 
@@ -174,6 +189,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         close: () => setIsOpen(false),
         couponCode,
         couponDiscountPercent,
+        couponMinOrderValue,
+        couponMeetsMin,
         couponLoading,
         couponError,
         applyCoupon,

@@ -100,6 +100,7 @@ export type Coupon = {
   id: string;
   code: string;
   discount_percent: number;
+  min_order_value: number;
   active: boolean;
   created_at: string;
 };

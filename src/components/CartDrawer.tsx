@@ -19,6 +19,8 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
     clear,
     couponCode,
     couponDiscountPercent,
+    couponMinOrderValue,
+    couponMeetsMin,
     couponLoading,
     couponError,
     applyCoupon,
@@ -119,13 +121,27 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
         {items.length > 0 && (
           <div className="border-t border-line px-5 py-4">
             {couponCode ? (
-              <div className="flex items-center justify-between bg-primary-light/30 border border-primary/30 rounded-lg px-3 py-2 mb-3">
-                <span className="text-xs text-primary-dark font-medium">
-                  Cupom <strong>{couponCode}</strong> aplicado (−{couponDiscountPercent}%)
+              <div
+                className={`flex items-center justify-between border rounded-lg px-3 py-2 mb-3 ${
+                  couponMeetsMin ? "bg-primary-light/30 border-primary/30" : "bg-amber-50 border-amber-300"
+                }`}
+              >
+                <span className={`text-xs font-medium ${couponMeetsMin ? "text-primary-dark" : "text-amber-700"}`}>
+                  {couponMeetsMin ? (
+                    <>
+                      Cupom <strong>{couponCode}</strong> aplicado (−{couponDiscountPercent}%)
+                    </>
+                  ) : (
+                    <>
+                      Cupom <strong>{couponCode}</strong>: faltam{" "}
+                      {formatPrice(Math.max(0, (couponMinOrderValue ?? 0) - subtotal))} para o pedido mínimo de{" "}
+                      {formatPrice(couponMinOrderValue ?? 0)}
+                    </>
+                  )}
                 </span>
                 <button
                   onClick={removeCoupon}
-                  className="text-xs text-ink/50 hover:text-ink underline underline-offset-2"
+                  className="text-xs text-ink/50 hover:text-ink underline underline-offset-2 flex-shrink-0 ml-2"
                   aria-label="Remover cupom"
                 >
                   remover
@@ -152,15 +168,17 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
 
             <div className="flex justify-between text-sm mb-1">
               <span className="text-ink/70">Subtotal</span>
-              <span className={couponCode ? "text-ink/50 line-through" : "font-medium"}>{formatPrice(subtotal)}</span>
+              <span className={couponMeetsMin && couponCode ? "text-ink/50 line-through" : "font-medium"}>
+                {formatPrice(subtotal)}
+              </span>
             </div>
-            {couponCode && (
+            {couponCode && couponMeetsMin && (
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-ink/70">Desconto</span>
                 <span className="font-medium text-primary-dark">−{formatPrice(discount)}</span>
               </div>
             )}
-            {couponCode && (
+            {couponCode && couponMeetsMin && (
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-ink/70 font-medium">Total</span>
                 <span className="font-semibold">{formatPrice(total)}</span>
@@ -171,7 +189,9 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
               href={cartWhatsAppLink(
                 settings.whatsapp_number,
                 items,
-                couponCode && couponDiscountPercent ? { code: couponCode, discountPercent: couponDiscountPercent } : null
+                couponCode && couponDiscountPercent && couponMeetsMin
+                  ? { code: couponCode, discountPercent: couponDiscountPercent }
+                  : null
               )}
               target="_blank"
               rel="noopener noreferrer"
