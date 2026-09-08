@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/admin", label: "Visão geral", exact: true },
   { href: "/admin/produtos", label: "Produtos" },
   { href: "/admin/categorias", label: "Categorias" },
+  { href: "/admin/cupons", label: "Cupons" },
   { href: "/admin/banners", label: "Banners" },
   { href: "/admin/configuracoes", label: "Configurações da loja" },
 ];

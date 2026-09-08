@@ -95,3 +95,11 @@ export type CartItem = {
   quantity: number;
   image_url: string | null;
 };
+
+export type Coupon = {
+  id: string;
+  code: string;
+  discount_percent: number;
+  active: boolean;
+  created_at: string;
+};

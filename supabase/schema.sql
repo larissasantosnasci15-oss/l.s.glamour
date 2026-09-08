@@ -63,6 +63,22 @@ create table if not exists public.banners (
 );
 
 -- -------------------------------------------------------------------------
+-- CUPONS DE DESCONTO
+-- Cupom ativo aplica um desconto percentual sobre o valor total da sacola.
+-- Atenção: a validação do cupom acontece no navegador do cliente (não há
+-- servidor próprio), então trate os cupons como uma cortesia operacional,
+-- não como um segredo criptográfico — alguém tecnicamente muito curioso
+-- poderia descobrir códigos ativos inspecionando as requisições do site.
+-- -------------------------------------------------------------------------
+create table if not exists public.coupons (
+  id uuid primary key default gen_random_uuid(),
+  code text not null unique,
+  discount_percent numeric(5, 2) not null check (discount_percent > 0 and discount_percent <= 100),
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- -------------------------------------------------------------------------
 -- CONFIGURAÇÕES DA LOJA (linha única, id fixo = 1)
 -- -------------------------------------------------------------------------
 create table if not exists public.settings (
@@ -134,6 +150,7 @@ alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.banners enable row level security;
 alter table public.settings enable row level security;
+alter table public.coupons enable row level security;
 
 drop policy if exists "public read categories" on public.categories;
 create policy "public read categories" on public.categories
@@ -165,6 +182,16 @@ create policy "public read settings" on public.settings
 
 drop policy if exists "admin write settings" on public.settings;
 create policy "admin write settings" on public.settings
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+-- Cupons: só expõe para leitura pública os cupons ATIVOS (os desativados/
+-- expirados ficam visíveis apenas para o admin autenticado).
+drop policy if exists "public read active coupons" on public.coupons;
+create policy "public read active coupons" on public.coupons
+  for select using (active = true or auth.role() = 'authenticated');
+
+drop policy if exists "admin write coupons" on public.coupons;
+create policy "admin write coupons" on public.coupons
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 -- =========================================================================

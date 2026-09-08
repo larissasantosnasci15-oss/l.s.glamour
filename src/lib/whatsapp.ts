@@ -45,20 +45,33 @@ export function productWhatsAppLink(whatsappNumber: string, product: Pick<Produc
   return buildLink(whatsappNumber, message);
 }
 
-export function cartWhatsAppLink(whatsappNumber: string, items: CartItem[]): string {
+export function cartWhatsAppLink(
+  whatsappNumber: string,
+  items: CartItem[],
+  coupon?: { code: string; discountPercent: number } | null
+): string {
   const lines = items.map(
     (item) =>
       `• ${item.quantity}x ${item.name} — ${formatPrice(item.price)} (subtotal ${formatPrice(
         item.price * item.quantity
       )})`
   );
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discount = coupon ? (subtotal * coupon.discountPercent) / 100 : 0;
+  const total = Math.max(0, subtotal - discount);
+
   const message = [
     "Olá! Gostaria de fechar o seguinte pedido:",
     "",
     ...lines,
     "",
-    `Total: ${formatPrice(total)}`,
+    ...(coupon
+      ? [
+          `Subtotal: ${formatPrice(subtotal)}`,
+          `Cupom aplicado: ${coupon.code} (-${coupon.discountPercent}%)`,
+          `Total com desconto: ${formatPrice(total)}`,
+        ]
+      : [`Total: ${formatPrice(total)}`]),
   ].join("\n");
   return buildLink(whatsappNumber, message);
 }

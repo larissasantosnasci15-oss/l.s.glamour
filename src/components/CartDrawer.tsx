@@ -9,8 +9,25 @@ import { cartWhatsAppLink, formatPrice } from "@/lib/whatsapp";
 import type { Settings } from "@/lib/types";
 
 export default function CartDrawer({ settings }: { settings: Settings }) {
-  const { items, isOpen, close, removeItem, updateQuantity, subtotal, clear } = useCart();
+  const {
+    items,
+    isOpen,
+    close,
+    removeItem,
+    updateQuantity,
+    subtotal,
+    clear,
+    couponCode,
+    couponDiscountPercent,
+    couponLoading,
+    couponError,
+    applyCoupon,
+    removeCoupon,
+    discount,
+    total,
+  } = useCart();
   const [mounted, setMounted] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
 
   // O header é "sticky" com desfoque de fundo (backdrop-blur), e isso cria um novo
   // "containing block" para elementos com position: fixed dentro dele — por isso a
@@ -22,6 +39,12 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
   }, []);
 
   if (!isOpen || !mounted) return null;
+
+  async function handleApplyCoupon(e: React.FormEvent) {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+    await applyCoupon(couponInput);
+  }
 
   return createPortal(
     <div className="fixed inset-0 z-50">
@@ -95,13 +118,61 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
 
         {items.length > 0 && (
           <div className="border-t border-line px-5 py-4">
+            {couponCode ? (
+              <div className="flex items-center justify-between bg-primary-light/30 border border-primary/30 rounded-lg px-3 py-2 mb-3">
+                <span className="text-xs text-primary-dark font-medium">
+                  Cupom <strong>{couponCode}</strong> aplicado (−{couponDiscountPercent}%)
+                </span>
+                <button
+                  onClick={removeCoupon}
+                  className="text-xs text-ink/50 hover:text-ink underline underline-offset-2"
+                  aria-label="Remover cupom"
+                >
+                  remover
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleApplyCoupon} className="flex gap-2 mb-3">
+                <input
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  placeholder="Cupom de desconto"
+                  className="flex-1 border border-line rounded-full px-3 py-2 text-xs uppercase focus:outline-none focus:border-primary"
+                />
+                <button
+                  type="submit"
+                  disabled={couponLoading || !couponInput.trim()}
+                  className="text-xs border border-ink rounded-full px-4 py-2 hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {couponLoading ? "..." : "Aplicar"}
+                </button>
+              </form>
+            )}
+            {couponError && !couponCode && <p className="text-xs text-red-500 mb-3">{couponError}</p>}
+
             <div className="flex justify-between text-sm mb-1">
               <span className="text-ink/70">Subtotal</span>
-              <span className="font-medium">{formatPrice(subtotal)}</span>
+              <span className={couponCode ? "text-ink/50 line-through" : "font-medium"}>{formatPrice(subtotal)}</span>
             </div>
-            <p className="text-xs text-ink/50 mb-3">Frete calculado na finalização com a loja.</p>
+            {couponCode && (
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-ink/70">Desconto</span>
+                <span className="font-medium text-primary-dark">−{formatPrice(discount)}</span>
+              </div>
+            )}
+            {couponCode && (
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-ink/70 font-medium">Total</span>
+                <span className="font-semibold">{formatPrice(total)}</span>
+              </div>
+            )}
+            <p className="text-xs text-ink/50 mb-3 mt-1">Frete calculado na finalização com a loja.</p>
             <a
-              href={cartWhatsAppLink(settings.whatsapp_number, items)}
+              href={cartWhatsAppLink(
+                settings.whatsapp_number,
+                items,
+                couponCode && couponDiscountPercent ? { code: couponCode, discountPercent: couponDiscountPercent } : null
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary block text-center rounded-full py-3 text-sm font-medium"
