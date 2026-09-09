@@ -30,6 +30,17 @@ export default function HeaderClient({
     }
   }
 
+  // "Promoções" e "Lançamentos" são categorias de exemplo que, na prática,
+  // funcionam como o marcador "Marcar como promoção/lançamento" do produto
+  // (não uma categoria escolhida no cadastro) — por isso apontam para o
+  // mesmo filtro do checkbox "Somente promoções/lançamentos" em /produtos,
+  // em vez de filtrar por categoria (que ficaria sempre vazio).
+  function categoryHref(cat: Category) {
+    if (cat.slug === "promocoes") return "/produtos?promocao=1";
+    if (cat.slug === "lancamentos") return "/produtos?lancamento=1";
+    return `/produtos?categoria=${cat.slug}`;
+  }
+
   return (
     <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur border-b border-line">
       <div className="hairline" />
@@ -63,7 +74,7 @@ export default function HeaderClient({
 
         <nav className="hidden md:flex items-center gap-7 font-body text-[0.92rem] text-ink/80">
           {categories.slice(0, 6).map((cat) => (
-            <Link key={cat.id} href={`/produtos?categoria=${cat.slug}`} className="hover:text-primary transition-colors">
+            <Link key={cat.id} href={categoryHref(cat)} className="hover:text-primary transition-colors">
               {cat.name}
             </Link>
           ))}
@@ -124,7 +135,7 @@ export default function HeaderClient({
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              href={`/produtos?categoria=${cat.slug}`}
+              href={categoryHref(cat)}
               className="py-1 text-ink/80"
               onClick={() => setMenuOpen(false)}
             >

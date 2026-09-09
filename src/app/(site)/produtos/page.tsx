@@ -26,13 +26,20 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Sea
   });
 
   const activeCategory = categories.find((c) => c.slug === searchParams.categoria);
+  const pageTitle =
+    activeCategory?.name ??
+    (searchParams.promocao === "1"
+      ? "Promoções"
+      : searchParams.lancamento === "1"
+      ? "Lançamentos"
+      : searchParams.busca
+      ? `Resultados para "${searchParams.busca}"`
+      : "Todos os produtos");
 
   return (
     <div className="container-wrap py-10 md:py-14">
       <div className="mb-8">
-        <h1 className="font-display text-3xl md:text-4xl">
-          {activeCategory ? activeCategory.name : searchParams.busca ? `Resultados para "${searchParams.busca}"` : "Todos os produtos"}
-        </h1>
+        <h1 className="font-display text-3xl md:text-4xl">{pageTitle}</h1>
         <p className="text-ink/50 text-sm mt-1">{products.length} produto(s) encontrado(s)</p>
       </div>
 

@@ -45,16 +45,47 @@ export default function FiltersBar({
               Todas
             </Link>
           </li>
-          {categories.map((cat) => (
-            <li key={cat.id}>
-              <Link
-                href={`/produtos?categoria=${cat.slug}`}
-                className={searchParams.categoria === cat.slug ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
-              >
-                {cat.name}
-              </Link>
-            </li>
-          ))}
+          {categories.map((cat) => {
+            // "Promoções" e "Lançamentos" vieram como categorias de exemplo, mas na
+            // prática funcionam como os marcadores "Marcar como promoção/lançamento"
+            // do produto (não uma categoria de verdade que precisa ser escolhida no
+            // cadastro) — por isso apontam para o mesmo filtro do checkbox "Somente
+            // promoções/lançamentos" abaixo, em vez de filtrar por categoria.
+            if (cat.slug === "promocoes") {
+              return (
+                <li key={cat.id}>
+                  <Link
+                    href="/produtos?promocao=1"
+                    className={searchParams.promocao === "1" ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              );
+            }
+            if (cat.slug === "lancamentos") {
+              return (
+                <li key={cat.id}>
+                  <Link
+                    href="/produtos?lancamento=1"
+                    className={searchParams.lancamento === "1" ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              );
+            }
+            return (
+              <li key={cat.id}>
+                <Link
+                  href={`/produtos?categoria=${cat.slug}`}
+                  className={searchParams.categoria === cat.slug ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
