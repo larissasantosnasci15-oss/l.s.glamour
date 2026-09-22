@@ -1,6 +1,6 @@
 import { getBanners, getCategories, getProducts, getSettings } from "@/lib/data";
 import BannerCarousel from "@/components/BannerCarousel";
-import CategoryGrid from "@/components/CategoryGrid";
+import CategoryFilterBar from "@/components/CategoryFilterBar";
 import ProductSection from "@/components/ProductSection";
 import { WhatsAppCTA, InstagramSection } from "@/components/CallToActionSections";
 
@@ -23,7 +23,7 @@ export default async function HomePage() {
   return (
     <>
       <BannerCarousel banners={banners} />
-      <CategoryGrid categories={categories} />
+      <CategoryFilterBar categories={categories} />
       <ProductSection
         title="Em destaque"
         products={destaques.length ? destaques : featured}
