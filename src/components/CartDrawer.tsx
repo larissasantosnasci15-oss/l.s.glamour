@@ -158,7 +158,7 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
                 <button
                   type="submit"
                   disabled={couponLoading || !couponInput.trim()}
-                  className="text-xs border border-ink rounded-full px-4 py-2 hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="text-[11px] font-medium border border-gold text-gold rounded-full px-3.5 py-2 hover:bg-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {couponLoading ? "..." : "Aplicar"}
                 </button>
@@ -195,7 +195,7 @@ export default function CartDrawer({ settings }: { settings: Settings }) {
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-primary block text-center rounded-full py-3 text-sm font-medium"
+              className="btn-primary block text-center rounded-full py-2.5 text-sm font-semibold border border-gold"
             >
               Finalizar pedido pelo WhatsApp
             </a>

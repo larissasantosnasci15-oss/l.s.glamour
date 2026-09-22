@@ -15,7 +15,7 @@ export default function AddToCartButton({
     <button
       disabled={disabled}
       onClick={() => addItem(product)}
-      className="flex-1 text-center rounded-full py-3.5 text-sm font-medium border border-ink text-ink hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      className="flex-1 text-center rounded-full py-3 text-sm font-semibold border border-gold text-gold hover:bg-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
     >
       Adicionar à sacola
     </button>

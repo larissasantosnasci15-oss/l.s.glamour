@@ -69,12 +69,12 @@ export default function ProductCard({
           </div>
         )}
 
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-1.5 mt-2">
           <a
             href={productWhatsAppLink(whatsappNumber, product)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 text-center text-xs border border-primary text-primary-dark rounded-full py-2 hover:bg-primary hover:text-white transition-colors"
+            className="flex-1 text-center text-[11px] font-medium bg-ink text-white rounded-full py-1.5 px-2 hover:bg-primary-dark transition-colors"
           >
             {hasPrice ? "Comprar no WhatsApp" : "Consultar no WhatsApp"}
           </a>
@@ -90,7 +90,7 @@ export default function ProductCard({
                   image_url: product.image_url,
                 })
               }
-              className="text-xs border border-line rounded-full px-3 py-2 hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed"
+              className="text-[11px] font-medium border border-gold text-gold rounded-full px-2.5 py-1.5 hover:bg-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Adicionar à sacola"
             >
               +Sacola

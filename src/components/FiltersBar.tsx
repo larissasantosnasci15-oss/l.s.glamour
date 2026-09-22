@@ -4,6 +4,14 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Category, ProductType } from "@/lib/types";
 
+const CHIP_BASE = "text-[11px] font-medium rounded-full border px-3 py-1.5 transition-colors";
+const CHIP_ACTIVE = "bg-ink text-white border-ink";
+const CHIP_INACTIVE = "border-line text-ink/70 hover:border-gold hover:text-ink";
+
+function chipClass(active: boolean) {
+  return `${CHIP_BASE} ${active ? CHIP_ACTIVE : CHIP_INACTIVE}`;
+}
+
 export default function FiltersBar({
   categories,
   types,
@@ -38,15 +46,13 @@ export default function FiltersBar({
     <aside className="flex md:flex-col gap-6 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
       <div className="min-w-[220px] md:min-w-0">
         <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Categorias</p>
-        <ul className="flex flex-col gap-2 text-sm">
-          <li>
-            <Link
-              href="/produtos"
-              className={!searchParams.categoria ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
-            >
-              Todas
-            </Link>
-          </li>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/produtos"
+            className={chipClass(!searchParams.categoria && searchParams.promocao !== "1" && searchParams.lancamento !== "1")}
+          >
+            Todas
+          </Link>
           {categories.map((cat) => {
             // "Promoções" e "Lançamentos" vieram como categorias de exemplo, mas na
             // prática funcionam como os marcadores "Marcar como promoção/lançamento"
@@ -55,65 +61,48 @@ export default function FiltersBar({
             // promoções/lançamentos" abaixo, em vez de filtrar por categoria.
             if (cat.slug === "promocoes") {
               return (
-                <li key={cat.id}>
-                  <Link
-                    href="/produtos?promocao=1"
-                    className={searchParams.promocao === "1" ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
+                <Link key={cat.id} href="/produtos?promocao=1" className={chipClass(searchParams.promocao === "1")}>
+                  {cat.name}
+                </Link>
               );
             }
             if (cat.slug === "lancamentos") {
               return (
-                <li key={cat.id}>
-                  <Link
-                    href="/produtos?lancamento=1"
-                    className={searchParams.lancamento === "1" ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
+                <Link key={cat.id} href="/produtos?lancamento=1" className={chipClass(searchParams.lancamento === "1")}>
+                  {cat.name}
+                </Link>
               );
             }
             return (
-              <li key={cat.id}>
-                <Link
-                  href={`/produtos?categoria=${cat.slug}`}
-                  className={searchParams.categoria === cat.slug ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
-                >
-                  {cat.name}
-                </Link>
-              </li>
+              <Link
+                key={cat.id}
+                href={`/produtos?categoria=${cat.slug}`}
+                className={chipClass(searchParams.categoria === cat.slug)}
+              >
+                {cat.name}
+              </Link>
             );
           })}
-        </ul>
+        </div>
       </div>
 
       {types.length > 0 && (
         <div className="min-w-[180px] md:min-w-0">
           <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Tipo</p>
-          <ul className="flex flex-col gap-2 text-sm">
-            <li>
-              <button
-                onClick={() => updateParam("tipo", null)}
-                className={!searchParams.tipo ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
-              >
-                Todos
-              </button>
-            </li>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => updateParam("tipo", null)} className={chipClass(!searchParams.tipo)}>
+              Todos
+            </button>
             {types.map((type) => (
-              <li key={type.id}>
-                <button
-                  onClick={() => updateParam("tipo", searchParams.tipo === type.slug ? null : type.slug)}
-                  className={searchParams.tipo === type.slug ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
-                >
-                  {type.name}
-                </button>
-              </li>
+              <button
+                key={type.id}
+                onClick={() => updateParam("tipo", searchParams.tipo === type.slug ? null : type.slug)}
+                className={chipClass(searchParams.tipo === type.slug)}
+              >
+                {type.name}
+              </button>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
@@ -159,7 +148,7 @@ export default function FiltersBar({
             defaultValue={searchParams.precoMax}
             className="w-full border border-line rounded-lg px-2 py-1.5 text-sm"
           />
-          <button type="submit" className="text-xs text-primary-dark px-2">
+          <button type="submit" className="text-xs text-gold font-medium px-2">
             OK
           </button>
         </form>

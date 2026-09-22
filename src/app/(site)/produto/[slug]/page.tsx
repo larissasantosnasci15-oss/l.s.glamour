@@ -107,7 +107,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               href={productWhatsAppLink(settings.whatsapp_number, product)}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-primary flex-1 text-center rounded-full py-3.5 text-sm font-medium"
+              className="btn-primary flex-1 text-center rounded-full py-3 text-sm font-semibold border border-gold"
             >
               {hasPrice ? "Comprar pelo WhatsApp" : "Consultar pelo WhatsApp"}
             </a>
