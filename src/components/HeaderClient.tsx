@@ -33,12 +33,16 @@ export default function HeaderClient({
   // "Promoções" e "Lançamentos" são categorias de exemplo que, na prática,
   // funcionam como o marcador "Marcar como promoção/lançamento" do produto
   // (não uma categoria escolhida no cadastro) — por isso apontam para o
-  // mesmo filtro do checkbox "Somente promoções/lançamentos" em /produtos,
-  // em vez de filtrar por categoria (que ficaria sempre vazio).
+  // mesmo filtro do checkbox "Somente promoções/lançamentos", em vez de
+  // filtrar por categoria (que ficaria sempre vazio).
+  //
+  // Aponta pra "/" (a home, com o banner) e não pra "/produtos": assim,
+  // clicar numa categoria no menu sempre leva pra a mesma página com o
+  // banner, só trocando os produtos mostrados ali embaixo.
   function categoryHref(cat: Category) {
-    if (cat.slug === "promocoes") return "/produtos?promocao=1";
-    if (cat.slug === "lancamentos") return "/produtos?lancamento=1";
-    return `/produtos?categoria=${cat.slug}`;
+    if (cat.slug === "promocoes") return "/?promocao=1";
+    if (cat.slug === "lancamentos") return "/?lancamento=1";
+    return `/?categoria=${cat.slug}`;
   }
 
   return (
