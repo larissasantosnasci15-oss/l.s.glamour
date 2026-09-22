@@ -17,7 +17,7 @@ export default function BannerCarousel({ banners }: { banners: Banner[] }) {
   if (banners.length === 0) {
     return (
       <section className="container-wrap pt-6 md:pt-8">
-        <div className="relative rounded-2xl bg-primary-light aspect-[16/9] md:aspect-[3/1] flex items-center justify-center overflow-hidden">
+        <div className="relative rounded-2xl bg-primary-light aspect-[16/10] md:aspect-[21/9] flex items-center justify-center overflow-hidden">
           <div className="text-center px-6">
             <p className="font-display text-2xl md:text-4xl text-ink mb-3">Sua elegância em cada detalhe</p>
             <p className="text-ink/70 text-sm md:text-base">
@@ -33,7 +33,7 @@ export default function BannerCarousel({ banners }: { banners: Banner[] }) {
 
   return (
     <section className="container-wrap pt-6 md:pt-8">
-      <div className="relative rounded-2xl overflow-hidden aspect-[16/9] md:aspect-[3/1] bg-primary-light">
+      <div className="relative rounded-2xl overflow-hidden aspect-[16/10] md:aspect-[21/9] bg-primary-light">
         {banner.image_url && (
           <Image src={banner.image_url} alt={banner.title} fill priority className="object-cover" />
         )}

@@ -118,13 +118,13 @@ export default function ProductsExplorer({
   );
 
   return (
-    <div className="container-wrap py-10 md:py-14">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl md:text-4xl">{titleFor(filters, categories)}</h1>
+    <div className="container-wrap py-6 md:py-9">
+      <div className="mb-5">
+        <h1 className="font-display text-2xl md:text-3xl">{titleFor(filters, categories)}</h1>
         <p className="text-ink/50 text-sm mt-1">{products.length} produto(s) encontrado(s)</p>
       </div>
 
-      <div className="grid md:grid-cols-[220px_1fr] gap-8">
+      <div className="grid md:grid-cols-[220px_1fr] gap-6">
         <FiltersBar categories={categories} types={types} filters={filters} onChange={handleFilterChange} />
 
         <div className={`transition-opacity ${loading ? "opacity-50" : "opacity-100"}`}>

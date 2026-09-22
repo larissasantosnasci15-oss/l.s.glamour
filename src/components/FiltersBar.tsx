@@ -40,9 +40,9 @@ export default function FiltersBar({
   }
 
   return (
-    <aside className="flex md:flex-col gap-6 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
+    <aside className="flex md:flex-col gap-4 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
       <div className="min-w-[220px] md:min-w-0">
-        <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Categorias</p>
+        <p className="text-xs tracking-wide text-ink/45 mb-2 uppercase">Categorias</p>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => onChange({ categoria: null, promocao: null, lancamento: null })}
@@ -93,7 +93,7 @@ export default function FiltersBar({
 
       {types.length > 0 && (
         <div className="min-w-[180px] md:min-w-0">
-          <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Tipo</p>
+          <p className="text-xs tracking-wide text-ink/45 mb-2 uppercase">Tipo</p>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => onChange({ tipo: null })} className={chipClass(!filters.tipo)}>
               Todos
@@ -112,7 +112,7 @@ export default function FiltersBar({
       )}
 
       <div className="min-w-[180px] md:min-w-0">
-        <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Destaques</p>
+        <p className="text-xs tracking-wide text-ink/45 mb-2 uppercase">Destaques</p>
         <div className="flex flex-col gap-2 text-sm">
           <label className="flex items-center gap-2">
             <input
@@ -134,7 +134,7 @@ export default function FiltersBar({
       </div>
 
       <div className="min-w-[200px] md:min-w-0">
-        <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Faixa de preço</p>
+        <p className="text-xs tracking-wide text-ink/45 mb-2 uppercase">Faixa de preço</p>
         <form onSubmit={handlePriceSubmit} className="flex items-center gap-2">
           <input
             name="precoMin"
