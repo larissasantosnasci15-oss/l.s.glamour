@@ -7,11 +7,21 @@ export type Category = {
   created_at: string;
 };
 
+export type ProductType = {
+  id: string;
+  name: string;
+  slug: string;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+};
+
 export type Product = {
   id: string;
   name: string;
   slug: string;
   category_id: string | null;
+  type_id: string | null;
   brand: string | null;
   description: string;
   price: number;
@@ -27,6 +37,7 @@ export type Product = {
   created_at: string;
   updated_at: string;
   categories?: Category | null;
+  types?: ProductType | null;
 };
 
 export type Banner = {

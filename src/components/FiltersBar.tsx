@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { Category } from "@/lib/types";
+import type { Category, ProductType } from "@/lib/types";
 
 export default function FiltersBar({
   categories,
+  types,
   searchParams,
 }: {
   categories: Category[];
+  types: ProductType[];
   searchParams: Record<string, string | undefined>;
 }) {
   const router = useRouter();
@@ -88,6 +90,32 @@ export default function FiltersBar({
           })}
         </ul>
       </div>
+
+      {types.length > 0 && (
+        <div className="min-w-[180px] md:min-w-0">
+          <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Tipo</p>
+          <ul className="flex flex-col gap-2 text-sm">
+            <li>
+              <button
+                onClick={() => updateParam("tipo", null)}
+                className={!searchParams.tipo ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
+              >
+                Todos
+              </button>
+            </li>
+            {types.map((type) => (
+              <li key={type.id}>
+                <button
+                  onClick={() => updateParam("tipo", searchParams.tipo === type.slug ? null : type.slug)}
+                  className={searchParams.tipo === type.slug ? "text-primary font-medium" : "text-ink/70 hover:text-primary"}
+                >
+                  {type.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="min-w-[180px] md:min-w-0">
         <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Destaques</p>

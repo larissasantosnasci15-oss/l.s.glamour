@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slugify";
 import ImageUploader from "./ImageUploader";
-import type { Category, Product } from "@/lib/types";
+import type { Category, Product, ProductType } from "@/lib/types";
 
 type FormState = {
   name: string;
   slug: string;
   category_id: string;
+  type_id: string;
   brand: string;
   description: string;
   price: string;
@@ -28,6 +29,7 @@ const EMPTY_STATE: FormState = {
   name: "",
   slug: "",
   category_id: "",
+  type_id: "",
   brand: "",
   description: "",
   price: "",
@@ -43,6 +45,7 @@ const EMPTY_STATE: FormState = {
 
 export default function ProductForm({ product }: { product?: Product }) {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [types, setTypes] = useState<ProductType[]>([]);
   const [form, setForm] = useState<FormState>(EMPTY_STATE);
   const [slugTouched, setSlugTouched] = useState(!!product);
   const [saving, setSaving] = useState(false);
@@ -56,11 +59,17 @@ export default function ProductForm({ product }: { product?: Product }) {
       .select("*")
       .order("sort_order", { ascending: true })
       .then(({ data }) => setCategories(data ?? []));
+    supabase
+      .from("product_types")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => setTypes(data ?? []));
     if (product) {
       setForm({
         name: product.name,
         slug: product.slug,
         category_id: product.category_id ?? "",
+        type_id: product.type_id ?? "",
         brand: product.brand ?? "",
         description: product.description ?? "",
         price: String(product.price),
@@ -94,6 +103,7 @@ export default function ProductForm({ product }: { product?: Product }) {
       name: form.name.trim(),
       slug: slugify(form.slug || form.name),
       category_id: form.category_id || null,
+      type_id: form.type_id || null,
       brand: form.brand.trim() || null,
       description: form.description.trim(),
       price: Number(form.price.replace(",", ".")) || 0,
@@ -153,7 +163,7 @@ export default function ProductForm({ product }: { product?: Product }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <label className="text-xs text-ink/60 block mb-1">Categoria</label>
           <select
@@ -168,6 +178,22 @@ export default function ProductForm({ product }: { product?: Product }) {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="text-xs text-ink/60 block mb-1">Tipo</label>
+          <select
+            value={form.type_id}
+            onChange={(e) => update("type_id", e.target.value)}
+            className="w-full border border-line rounded-lg px-3 py-2 text-sm bg-white"
+          >
+            <option value="">Sem tipo</option>
+            {types.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-ink/40 mt-1">Ex: Feminino, Masculino, Kit. Gerencie em Admin &gt; Tipos.</p>
         </div>
         <div>
           <label className="text-xs text-ink/60 block mb-1">Marca (opcional)</label>

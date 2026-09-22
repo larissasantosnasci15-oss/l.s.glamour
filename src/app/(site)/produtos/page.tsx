@@ -1,4 +1,4 @@
-import { getCategories, getProducts, getSettings } from "@/lib/data";
+import { getCategories, getProductTypes, getProducts, getSettings } from "@/lib/data";
 import ProductCard from "@/components/ProductCard";
 import FiltersBar from "@/components/FiltersBar";
 
@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 
 type SearchParams = {
   categoria?: string;
+  tipo?: string;
   busca?: string;
   promocao?: string;
   lancamento?: string;
@@ -14,10 +15,11 @@ type SearchParams = {
 };
 
 export default async function ProdutosPage({ searchParams }: { searchParams: SearchParams }) {
-  const [settings, categories] = await Promise.all([getSettings(), getCategories()]);
+  const [settings, categories, types] = await Promise.all([getSettings(), getCategories(), getProductTypes()]);
 
   const products = await getProducts({
     categorySlug: searchParams.categoria,
+    typeSlug: searchParams.tipo,
     search: searchParams.busca,
     onlyPromo: searchParams.promocao === "1",
     onlyLaunch: searchParams.lancamento === "1",
@@ -44,7 +46,7 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Sea
       </div>
 
       <div className="grid md:grid-cols-[220px_1fr] gap-8">
-        <FiltersBar categories={categories} searchParams={searchParams} />
+        <FiltersBar categories={categories} types={types} searchParams={searchParams} />
 
         {products.length === 0 ? (
           <div className="py-20 text-center text-ink/50">

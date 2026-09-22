@@ -1,5 +1,5 @@
 import { createClient } from "./supabase/server";
-import { DEFAULT_SETTINGS, type Banner, type Category, type Product, type Settings } from "./types";
+import { DEFAULT_SETTINGS, type Banner, type Category, type Product, type ProductType, type Settings } from "./types";
 
 export async function getSettings(): Promise<Settings> {
   const supabase = createClient();
@@ -23,6 +23,22 @@ export async function getAllCategoriesAdmin(): Promise<Category[]> {
   return data ?? [];
 }
 
+export async function getProductTypes(): Promise<ProductType[]> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("product_types")
+    .select("*")
+    .eq("active", true)
+    .order("sort_order", { ascending: true });
+  return data ?? [];
+}
+
+export async function getAllProductTypesAdmin(): Promise<ProductType[]> {
+  const supabase = createClient();
+  const { data } = await supabase.from("product_types").select("*").order("sort_order", { ascending: true });
+  return data ?? [];
+}
+
 export async function getBanners(): Promise<Banner[]> {
   const supabase = createClient();
   const { data } = await supabase
@@ -41,6 +57,7 @@ export async function getAllBannersAdmin(): Promise<Banner[]> {
 
 type ProductFilters = {
   categorySlug?: string;
+  typeSlug?: string;
   search?: string;
   onlyPromo?: boolean;
   onlyLaunch?: boolean;
@@ -53,7 +70,7 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
   const supabase = createClient();
   let query = supabase
     .from("products")
-    .select("*, categories(*)")
+    .select("*, categories(*), types:product_types(*)")
     .eq("active", true)
     .order("created_at", { ascending: false });
 
@@ -64,6 +81,15 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
       .eq("slug", filters.categorySlug)
       .maybeSingle();
     if (cat) query = query.eq("category_id", cat.id);
+    else return [];
+  }
+  if (filters.typeSlug) {
+    const { data: type } = await supabase
+      .from("product_types")
+      .select("id")
+      .eq("slug", filters.typeSlug)
+      .maybeSingle();
+    if (type) query = query.eq("type_id", type.id);
     else return [];
   }
   if (filters.search) {
@@ -85,7 +111,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   const supabase = createClient();
   const { data } = await supabase
     .from("products")
-    .select("*, categories(*)")
+    .select("*, categories(*), types:product_types(*)")
     .eq("slug", slug)
     .eq("active", true)
     .maybeSingle();
@@ -96,7 +122,7 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
   const supabase = createClient();
   const { data } = await supabase
     .from("products")
-    .select("*, categories(*)")
+    .select("*, categories(*), types:product_types(*)")
     .order("created_at", { ascending: false });
   return (data as Product[]) ?? [];
 }

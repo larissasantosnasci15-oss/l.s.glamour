@@ -21,6 +21,20 @@ create table if not exists public.categories (
 );
 
 -- -------------------------------------------------------------------------
+-- TIPOS (filtro independente da categoria: Feminino, Masculino, Kit, etc.)
+-- Um produto pode ter uma categoria (ex: Perfumes) E um tipo (ex: Feminino)
+-- ao mesmo tempo — são filtros que se combinam na loja.
+-- -------------------------------------------------------------------------
+create table if not exists public.product_types (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text not null unique,
+  sort_order int not null default 0,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- -------------------------------------------------------------------------
 -- PRODUTOS
 -- -------------------------------------------------------------------------
 create table if not exists public.products (
@@ -28,6 +42,7 @@ create table if not exists public.products (
   name text not null,
   slug text not null unique,
   category_id uuid references public.categories(id) on delete set null,
+  type_id uuid references public.product_types(id) on delete set null,
   brand text,
   description text default '',
   price numeric(10, 2) not null default 0,
@@ -44,7 +59,12 @@ create table if not exists public.products (
   updated_at timestamptz not null default now()
 );
 
+-- Compatibilidade: se a tabela já existia sem essa coluna, adiciona sem
+-- apagar nada.
+alter table public.products add column if not exists type_id uuid references public.product_types(id) on delete set null;
+
 create index if not exists products_category_idx on public.products(category_id);
+create index if not exists products_type_idx on public.products(type_id);
 create index if not exists products_active_idx on public.products(active);
 
 -- -------------------------------------------------------------------------
@@ -130,6 +150,16 @@ insert into public.categories (name, slug, sort_order) values
 on conflict (slug) do nothing;
 
 -- -------------------------------------------------------------------------
+-- TIPOS INICIAIS (a loja pode adicionar/editar mais em Admin > Tipos)
+-- -------------------------------------------------------------------------
+insert into public.product_types (name, slug, sort_order) values
+  ('Feminino', 'feminino', 1),
+  ('Masculino', 'masculino', 2),
+  ('Unissex', 'unissex', 3),
+  ('Kit', 'kit', 4)
+on conflict (slug) do nothing;
+
+-- -------------------------------------------------------------------------
 -- updated_at automático em produtos
 -- -------------------------------------------------------------------------
 create or replace function public.set_updated_at()
@@ -152,6 +182,7 @@ create trigger products_set_updated_at
 -- Supabase Auth) pode inserir, editar ou excluir.
 -- =========================================================================
 alter table public.categories enable row level security;
+alter table public.product_types enable row level security;
 alter table public.products enable row level security;
 alter table public.banners enable row level security;
 alter table public.settings enable row level security;
@@ -163,6 +194,14 @@ create policy "public read categories" on public.categories
 
 drop policy if exists "admin write categories" on public.categories;
 create policy "admin write categories" on public.categories
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+drop policy if exists "public read product_types" on public.product_types;
+create policy "public read product_types" on public.product_types
+  for select using (true);
+
+drop policy if exists "admin write product_types" on public.product_types;
+create policy "admin write product_types" on public.product_types
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 drop policy if exists "public read products" on public.products;
