@@ -19,8 +19,8 @@ export default function ProductSection({
 
   return (
     <section className={tone === "neutral" ? "bg-surface" : ""}>
-      <div className="container-wrap py-14 md:py-20">
-        <div className="flex items-end justify-between mb-8">
+      <div className="container-wrap py-8 md:py-12">
+        <div className="flex items-end justify-between mb-6">
           <h2 className="font-display text-3xl md:text-4xl">{title}</h2>
           {viewAllHref && (
             <Link href={viewAllHref} className="text-sm text-primary-dark hover:underline underline-offset-4 hidden sm:inline">

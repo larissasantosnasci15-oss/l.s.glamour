@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Category } from "@/lib/types";
 
 const CHIP =
-  "flex-shrink-0 text-[11px] font-medium rounded-full border border-line text-ink/70 px-3.5 py-1.5 hover:border-gold hover:text-ink transition-colors";
+  "flex-shrink-0 text-xs font-medium rounded-full border border-line bg-surface text-ink/70 px-4 py-2 hover:border-gold hover:text-ink transition-colors";
 
 // "Promoções" e "Lançamentos" vieram como categorias de exemplo, mas na prática
 // funcionam como os marcadores "Marcar como promoção/lançamento" do produto —
@@ -18,17 +18,15 @@ export default function CategoryFilterBar({ categories }: { categories: Category
   if (categories.length === 0) return null;
 
   return (
-    <div className="border-b border-line bg-surface">
-      <div className="container-wrap flex items-center gap-2 py-3 overflow-x-auto">
-        <Link href="/produtos" className={CHIP}>
-          Todas
+    <div className="container-wrap flex items-center gap-2 py-5 overflow-x-auto">
+      <Link href="/produtos" className={CHIP}>
+        Todas
+      </Link>
+      {categories.map((cat) => (
+        <Link key={cat.id} href={categoryHref(cat)} className={CHIP}>
+          {cat.name}
         </Link>
-        {categories.map((cat) => (
-          <Link key={cat.id} href={categoryHref(cat)} className={CHIP}>
-            {cat.name}
-          </Link>
-        ))}
-      </div>
+      ))}
     </div>
   );
 }

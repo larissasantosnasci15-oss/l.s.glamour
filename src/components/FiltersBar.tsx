@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import type { Category, ProductType } from "@/lib/types";
 
-const CHIP_BASE = "text-[11px] font-medium rounded-full border px-3 py-1.5 transition-colors";
+const CHIP_BASE = "text-xs font-medium rounded-full border px-3.5 py-1.5 transition-colors";
 const CHIP_ACTIVE = "bg-ink text-white border-ink";
 const CHIP_INACTIVE = "border-line text-ink/70 hover:border-gold hover:text-ink";
 
@@ -12,34 +10,33 @@ function chipClass(active: boolean) {
   return `${CHIP_BASE} ${active ? CHIP_ACTIVE : CHIP_INACTIVE}`;
 }
 
+export type ProductFiltersState = {
+  categoria?: string;
+  tipo?: string;
+  busca?: string;
+  promocao?: string;
+  lancamento?: string;
+  precoMin?: string;
+  precoMax?: string;
+};
+
 export default function FiltersBar({
   categories,
   types,
-  searchParams,
+  filters,
+  onChange,
 }: {
   categories: Category[];
   types: ProductType[];
-  searchParams: Record<string, string | undefined>;
+  filters: ProductFiltersState;
+  onChange: (patch: Partial<Record<keyof ProductFiltersState, string | null>>) => void;
 }) {
-  const router = useRouter();
-  const currentSearchParams = useSearchParams();
-
-  function updateParam(key: string, value: string | null) {
-    const params = new URLSearchParams(currentSearchParams.toString());
-    if (value === null) params.delete(key);
-    else params.set(key, value);
-    router.push(`/produtos?${params.toString()}`);
-  }
-
   function handlePriceSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const min = formData.get("precoMin") as string;
-    const max = formData.get("precoMax") as string;
-    const params = new URLSearchParams(currentSearchParams.toString());
-    min ? params.set("precoMin", min) : params.delete("precoMin");
-    max ? params.set("precoMax", max) : params.delete("precoMax");
-    router.push(`/produtos?${params.toString()}`);
+    const min = (formData.get("precoMin") as string) || null;
+    const max = (formData.get("precoMax") as string) || null;
+    onChange({ precoMin: min, precoMax: max });
   }
 
   return (
@@ -47,12 +44,12 @@ export default function FiltersBar({
       <div className="min-w-[220px] md:min-w-0">
         <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Categorias</p>
         <div className="flex flex-wrap gap-2">
-          <Link
-            href="/produtos"
-            className={chipClass(!searchParams.categoria && searchParams.promocao !== "1" && searchParams.lancamento !== "1")}
+          <button
+            onClick={() => onChange({ categoria: null, promocao: null, lancamento: null })}
+            className={chipClass(!filters.categoria && filters.promocao !== "1" && filters.lancamento !== "1")}
           >
             Todas
-          </Link>
+          </button>
           {categories.map((cat) => {
             // "Promoções" e "Lançamentos" vieram como categorias de exemplo, mas na
             // prática funcionam como os marcadores "Marcar como promoção/lançamento"
@@ -61,26 +58,34 @@ export default function FiltersBar({
             // promoções/lançamentos" abaixo, em vez de filtrar por categoria.
             if (cat.slug === "promocoes") {
               return (
-                <Link key={cat.id} href="/produtos?promocao=1" className={chipClass(searchParams.promocao === "1")}>
+                <button
+                  key={cat.id}
+                  onClick={() => onChange({ promocao: "1", categoria: null, lancamento: null })}
+                  className={chipClass(filters.promocao === "1")}
+                >
                   {cat.name}
-                </Link>
+                </button>
               );
             }
             if (cat.slug === "lancamentos") {
               return (
-                <Link key={cat.id} href="/produtos?lancamento=1" className={chipClass(searchParams.lancamento === "1")}>
+                <button
+                  key={cat.id}
+                  onClick={() => onChange({ lancamento: "1", categoria: null, promocao: null })}
+                  className={chipClass(filters.lancamento === "1")}
+                >
                   {cat.name}
-                </Link>
+                </button>
               );
             }
             return (
-              <Link
+              <button
                 key={cat.id}
-                href={`/produtos?categoria=${cat.slug}`}
-                className={chipClass(searchParams.categoria === cat.slug)}
+                onClick={() => onChange({ categoria: cat.slug, promocao: null, lancamento: null })}
+                className={chipClass(filters.categoria === cat.slug)}
               >
                 {cat.name}
-              </Link>
+              </button>
             );
           })}
         </div>
@@ -90,14 +95,14 @@ export default function FiltersBar({
         <div className="min-w-[180px] md:min-w-0">
           <p className="text-xs tracking-wide text-ink/45 mb-3 uppercase">Tipo</p>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => updateParam("tipo", null)} className={chipClass(!searchParams.tipo)}>
+            <button onClick={() => onChange({ tipo: null })} className={chipClass(!filters.tipo)}>
               Todos
             </button>
             {types.map((type) => (
               <button
                 key={type.id}
-                onClick={() => updateParam("tipo", searchParams.tipo === type.slug ? null : type.slug)}
-                className={chipClass(searchParams.tipo === type.slug)}
+                onClick={() => onChange({ tipo: filters.tipo === type.slug ? null : type.slug })}
+                className={chipClass(filters.tipo === type.slug)}
               >
                 {type.name}
               </button>
@@ -112,16 +117,16 @@ export default function FiltersBar({
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
-              checked={searchParams.promocao === "1"}
-              onChange={(e) => updateParam("promocao", e.target.checked ? "1" : null)}
+              checked={filters.promocao === "1"}
+              onChange={(e) => onChange({ promocao: e.target.checked ? "1" : null })}
             />
             Somente promoções
           </label>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
-              checked={searchParams.lancamento === "1"}
-              onChange={(e) => updateParam("lancamento", e.target.checked ? "1" : null)}
+              checked={filters.lancamento === "1"}
+              onChange={(e) => onChange({ lancamento: e.target.checked ? "1" : null })}
             />
             Somente lançamentos
           </label>
@@ -136,7 +141,8 @@ export default function FiltersBar({
             type="number"
             min={0}
             placeholder="Mín"
-            defaultValue={searchParams.precoMin}
+            defaultValue={filters.precoMin}
+            key={`min-${filters.precoMin ?? ""}`}
             className="w-full border border-line rounded-lg px-2 py-1.5 text-sm"
           />
           <span className="text-ink/40">–</span>
@@ -145,7 +151,8 @@ export default function FiltersBar({
             type="number"
             min={0}
             placeholder="Máx"
-            defaultValue={searchParams.precoMax}
+            defaultValue={filters.precoMax}
+            key={`max-${filters.precoMax ?? ""}`}
             className="w-full border border-line rounded-lg px-2 py-1.5 text-sm"
           />
           <button type="submit" className="text-xs text-gold font-medium px-2">
