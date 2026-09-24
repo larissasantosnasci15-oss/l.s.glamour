@@ -126,7 +126,6 @@ export default function AdminPromocaoEmMassaPage() {
 
       const rows = products.map((p) => ({
         id: p.id,
-        is_promo: true,
         promo_price: Math.round(p.price * (1 - num / 100) * 100) / 100,
       }));
 
@@ -138,15 +137,27 @@ export default function AdminPromocaoEmMassaPage() {
         return;
       }
 
-      const { error } = await supabase.from("products").upsert(rows);
+      // Uma chamada .update() por produto (em paralelo), em vez de upsert:
+      // o upsert manda um INSERT ... ON CONFLICT DO UPDATE por baixo dos
+      // panos, e como só enviamos alguns campos, o Postgres recusa por
+      // causa de colunas obrigatórias (nome, slug) que não fazem parte
+      // dessa atualização — mesmo o produto já existindo.
+      const results = await Promise.all(
+        rows.map((row) =>
+          supabase.from("products").update({ is_promo: true, promo_price: row.promo_price }).eq("id", row.id)
+        )
+      );
       setApplying(false);
-      if (error) {
+      const failed = results.filter((r) => r.error).length;
+      if (failed === rows.length) {
         setError("Não foi possível aplicar a promoção. Tente novamente.");
         return;
       }
+      const okCount = rows.length - failed;
       setSuccess(
-        `Pronto! ${rows.length} produto(s) de "${selectedLabel}" receberam ${num}% de desconto.` +
-          (skipped > 0 ? ` (${skipped} produto(s) sem preço definido foram ignorados.)` : "")
+        `Pronto! ${okCount} produto(s) de "${selectedLabel}" receberam ${num}% de desconto.` +
+          (skipped > 0 ? ` (${skipped} produto(s) sem preço definido foram ignorados.)` : "") +
+          (failed > 0 ? ` (${failed} não puderam ser atualizados.)` : "")
       );
     }
 
